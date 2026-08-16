@@ -1,0 +1,19 @@
+{
+  "name": "polyscope",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Market intelligence terminal for Polymarket US: consistency scanner, cross-venue divergence vs Kalshi, orderbook explorer.",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=server & npm run dev --workspace=web & wait",
+    "build": "npm run build --workspace=web && npm run build --workspace=server",
+    "start": "npm run start --workspace=server",
+    "test": "npm run test --workspace=server"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
