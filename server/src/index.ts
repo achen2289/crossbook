@@ -5,22 +5,30 @@ import express from 'express';
 import { config } from './config.js';
 import { PmusClient } from './pmus/client.js';
 import { KalshiClient } from './kalshi/client.js';
-import { ActivitySampler } from './analysis/sampler.js';
-import { PriceTracker } from './analysis/tracker.js';
-import { apiRouter } from './routes/api.js';
-import { quotePx } from './pmus/types.js';
+import { GapHistory } from './analysis/history.js';
+import type { CuratedPair } from './analysis/pairs.js';
+import { apiRouter, currentPairs } from './routes/api.js';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(here, '../..');
 
 const pmus = new PmusClient({ keyId: config.keyId, secret: config.secret });
 const kalshi = new KalshiClient();
-const tracker = new PriceTracker();
-const sampler = new ActivitySampler(pmus);
+const history = new GapHistory(path.join(repoRoot, 'data/gaps.jsonl'));
+
+function loadCurated(): CuratedPair[] {
+  const file = path.join(repoRoot, 'curated-pairs.json');
+  if (!fs.existsSync(file)) return [];
+  return JSON.parse(fs.readFileSync(file, 'utf8')) as CuratedPair[];
+}
+const curated = loadCurated();
+
+const deps = { pmus, kalshi, history, curated };
 
 const app = express();
-app.use('/api', apiRouter(pmus, kalshi, tracker, sampler));
+app.use('/api', apiRouter(deps));
 
-// Serve the built dashboard when it exists (npm run build).
-const here = path.dirname(fileURLToPath(import.meta.url));
-const webDist = path.resolve(here, '../../web/dist');
+const webDist = path.resolve(repoRoot, 'web/dist');
 if (fs.existsSync(webDist)) {
   app.use(express.static(webDist));
   app.get(/^\/(?!api\/).*/, (_req, res) => res.sendFile(path.join(webDist, 'index.html')));
@@ -31,38 +39,30 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(502).json({ error: err.message });
 });
 
-/** Sample mid prices for the movers view (no historical price API exists)
- * and rotate BBO polling for open-interest data (list APIs never populate
- * volume/OI fields). */
-async function refreshTracker(): Promise<void> {
+/** One gap sample per matched pair per minute — neither venue serves
+ * price history, so the charts are entirely self-observed. */
+async function sampleGaps(): Promise<void> {
   try {
-    const events = await pmus.getAllActiveEvents();
-    for (const ev of events) {
-      for (const m of ev.markets ?? []) {
-        const bid = quotePx(m.bestBidQuote);
-        const ask = quotePx(m.bestAskQuote);
-        if (bid === undefined || ask === undefined) continue;
-        tracker.record(
-          m.slug,
-          m.titleShort || m.title || m.question || m.slug,
-          ev.slug,
-          ev.title,
-          (bid + ask) / 2,
-        );
+    const { pairs } = await currentPairs(deps);
+    for (const p of pairs) {
+      // Low-trust pairs are review-queue noise; recording all ~1.5k pairs
+      // would also grow the JSONL by >100MB/day.
+      if (p.trust === 'low') continue;
+      if (p.pm.mid !== undefined && p.kalshi.mid !== undefined) {
+        history.record(p.id, p.pm.mid, p.kalshi.mid);
       }
     }
-    await sampler.cycle(events);
   } catch (err) {
-    console.error('tracker refresh failed:', (err as Error).message);
+    console.error('gap sampling failed:', (err as Error).message);
   }
 }
 
-void refreshTracker();
-setInterval(refreshTracker, 60_000);
+void sampleGaps();
+setInterval(sampleGaps, 60_000);
 
 app.listen(config.port, () => {
   console.log(
-    `polyscope server on http://localhost:${config.port} ` +
-      `(auth: ${pmus.isAuthenticated ? 'yes' : 'public-only'})`,
+    `crossbook on http://localhost:${config.port} ` +
+      `(${curated.length} curated pairs, pmus auth: ${pmus.isAuthenticated ? 'yes' : 'no'})`,
   );
 });

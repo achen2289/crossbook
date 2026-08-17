@@ -1,90 +1,27 @@
-/**
- * Small shared primitives: Badge, Skeleton, TableSkeleton, ErrorBox,
- * and the SectionStatus "as of" line used by every auto-refreshing tab.
- */
-import type { ReactNode } from 'react';
-import { fmtTime } from '../api';
+export type BadgeVariant = 'curated' | 'high' | 'low' | 'live' | 'suspect' | 'verified';
 
-export type BadgeTone = 'long' | 'short' | 'none' | 'live' | 'neutral' | 'accent';
+const LABELS: Record<BadgeVariant, string> = {
+  curated: 'curated',
+  high: 'high',
+  low: 'review',
+  live: 'LIVE',
+  suspect: 'suspect',
+  verified: 'book-verified',
+};
 
-export function Badge({
-  tone = 'neutral',
-  title,
-  children,
-}: {
-  tone?: BadgeTone;
-  title?: string;
-  children: ReactNode;
-}) {
+const TITLES: Record<BadgeVariant, string> = {
+  curated: 'Hand-verified slug-to-ticker mapping',
+  high: 'Near-exact title match on event and outcome',
+  low: 'Loose fuzzy match — gap shown for review, no arb math',
+  live: 'In-play on the Polymarket side — apparent edges are usually staleness',
+  suspect: 'Likely question mismatch or too-good-to-be-true',
+  verified: 'Quotes and edges re-derived from live order books',
+};
+
+export function Badge({ variant }: { variant: BadgeVariant }) {
   return (
-    <span className={`badge badge-${tone}`} title={title}>
-      {children}
+    <span className={`badge badge-${variant}`} title={TITLES[variant]}>
+      {LABELS[variant]}
     </span>
-  );
-}
-
-export function Skeleton({
-  width = '100%',
-  height = 14,
-}: {
-  width?: number | string;
-  height?: number | string;
-}) {
-  return <div className="skeleton" style={{ width, height }} aria-hidden="true" />;
-}
-
-export function TableSkeleton({ rows = 8 }: { rows?: number }) {
-  return (
-    <div className="skeleton-stack" role="status" aria-label="Loading">
-      {Array.from({ length: rows }, (_, i) => (
-        <Skeleton key={i} height={22} width={`${100 - (i % 3) * 6}%`} />
-      ))}
-    </div>
-  );
-}
-
-export function ErrorBox({ message, onRetry }: { message: string; onRetry?: () => void }) {
-  return (
-    <div className="error-box" role="alert">
-      <span className="error-title">Request failed</span>
-      <span className="error-msg">{message}</span>
-      {onRetry && (
-        <button className="btn" onClick={onRetry}>
-          Retry
-        </button>
-      )}
-    </div>
-  );
-}
-
-export function SectionStatus({
-  asOf,
-  refreshing,
-  auto,
-  note,
-  onRefresh,
-}: {
-  asOf?: string;
-  refreshing?: boolean;
-  auto?: string;
-  note?: string;
-  onRefresh?: () => void;
-}) {
-  return (
-    <div className="section-status">
-      {asOf && (
-        <span>
-          as of <strong>{fmtTime(asOf)}</strong>
-        </span>
-      )}
-      {auto && <span className="dim">auto-refresh {auto}</span>}
-      {note && <span className="dim">{note}</span>}
-      {refreshing && <span className="pulse" title="Refreshing" aria-label="Refreshing" />}
-      {onRefresh && (
-        <button className="btn btn-ghost" onClick={onRefresh}>
-          Refresh
-        </button>
-      )}
-    </div>
   );
 }

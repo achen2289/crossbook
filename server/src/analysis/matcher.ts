@@ -99,11 +99,32 @@ export function matchVenues(pmEvents: PmEvent[], kEvents: KalshiEvent[]): Market
     .filter((e) => e.markets.length > 0)
     .map((e) => ({ event: e, tokens: tokenize(e.title) }));
 
+  // Inverted token index: comparing every PM event against every Kalshi
+  // event is ~25M jaccard calls at full-universe scale (2.6k × 9.5k) and
+  // blocks the event loop for minutes. Any event pair scoring >= the
+  // threshold must share at least one token, so only score those.
+  const byToken = new Map<string, number[]>();
+  kIndexed.forEach((k, i) => {
+    for (const t of k.tokens) {
+      let arr = byToken.get(t);
+      if (!arr) {
+        arr = [];
+        byToken.set(t, arr);
+      }
+      arr.push(i);
+    }
+  });
+
   const matches: MarketMatch[] = [];
   for (const pmEvent of pmEvents) {
     const pmTokens = tokenize(pmEvent.title);
+    const candidateIdx = new Set<number>();
+    for (const t of pmTokens) {
+      for (const i of byToken.get(t) ?? []) candidateIdx.add(i);
+    }
     let best: { event: KalshiEvent; score: number } | undefined;
-    for (const k of kIndexed) {
+    for (const i of candidateIdx) {
+      const k = kIndexed[i];
       const score = jaccard(pmTokens, k.tokens);
       if (score >= MIN_EVENT_SCORE && (!best || score > best.score)) {
         best = { event: k.event, score };

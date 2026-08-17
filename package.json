@@ -1,8 +1,8 @@
 {
-  "name": "polyscope",
+  "name": "crossbook",
   "private": true,
   "version": "0.1.0",
-  "description": "Market intelligence terminal for Polymarket US: consistency scanner, cross-venue divergence vs Kalshi, orderbook explorer.",
+  "description": "Cross-venue arbitrage and divergence tracker for Polymarket US vs Kalshi.",
   "workspaces": [
     "server",
     "web"

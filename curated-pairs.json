@@ -1,0 +1,252 @@
+[
+  {
+    "pmSlug": "rdc-usfed-fomc-2026-09-16-nochng",
+    "kalshiTicker": "KXFEDDECISION-26SEP-H0",
+    "note": "Fed Sept 2026: no change"
+  },
+  {
+    "pmSlug": "rdc-usfed-fomc-2026-09-16-hike25",
+    "kalshiTicker": "KXFEDDECISION-26SEP-H25",
+    "note": "Fed Sept 2026: +25bps"
+  },
+  {
+    "pmSlug": "rdc-usfed-fomc-2026-09-16-cut25",
+    "kalshiTicker": "KXFEDDECISION-26SEP-C25",
+    "note": "Fed Sept 2026: -25bps"
+  },
+  {
+    "pmSlug": "rdc-usfed-fomc-2026-09-16-hike50",
+    "kalshiTicker": "KXFEDDECISION-26SEP-H26",
+    "note": "Fed Sept 2026: hike >25bps"
+  },
+  {
+    "pmSlug": "rdc-usfed-fomc-2026-09-16-cut50",
+    "kalshiTicker": "KXFEDDECISION-26SEP-C26",
+    "note": "Fed Sept 2026: cut >25bps"
+  },
+  {
+    "pmSlug": "aachc-cfb-undefeated-2026-11-28-vir",
+    "kalshiTicker": "KXNCAAFUNDEFEATED-26-UVA",
+    "note": "College Football Undefeated Regular Season :: Virginia (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aachc-cfb-undefeated-2026-11-28-okl",
+    "kalshiTicker": "KXNCAAFUNDEFEATED-26-OKLA",
+    "note": "College Football Undefeated Regular Season :: Oklahoma (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aachc-cfb-undefeated-2026-11-28-fl",
+    "kalshiTicker": "KXNCAAFUNDEFEATED-26-FLA",
+    "note": "College Football Undefeated Regular Season :: Florida (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aachc-cfb-undefeated-2026-11-28-iowa",
+    "kalshiTicker": "KXNCAAFUNDEFEATED-26-IOWA",
+    "note": "College Football Undefeated Regular Season :: Iowa (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aachc-cfb-undefeated-2026-11-28-ala",
+    "kalshiTicker": "KXNCAAFUNDEFEATED-26-ALA",
+    "note": "College Football Undefeated Regular Season :: Alabama (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aqc-cfb-cfp-2026-12-06-playoffq-uk",
+    "kalshiTicker": "KXNCAAFPLAYOFF-26-UK",
+    "note": "College Football Playoff Qualifiers :: Kentucky (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aachc-cfb-undefeated-2026-11-28-miss",
+    "kalshiTicker": "KXNCAAFUNDEFEATED-26-MISS",
+    "note": "College Football Undefeated Regular Season :: Ole Miss (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-dem-2028-kamhar",
+    "kalshiTicker": "KXPRESNOMD-28-KH",
+    "note": "2028 Democratic Presidential Nominee :: Kamala Harris (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-dem-2028-stasmi",
+    "kalshiTicker": "KXPRESNOMD-28-SAS",
+    "note": "2028 Democratic Presidential Nominee :: Stephen A. Smith (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-dem-2028-micoba",
+    "kalshiTicker": "KXPRESNOMD-28-MO",
+    "note": "2028 Democratic Presidential Nominee :: Michelle Obama (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-dem-2028-andbes",
+    "kalshiTicker": "KXPRESNOMD-28-AB",
+    "note": "2028 Democratic Presidential Nominee :: Andy Beshear (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-dem-2028-gavnew",
+    "kalshiTicker": "KXPRESNOMD-28-GN",
+    "note": "2028 Democratic Presidential Nominee :: Gavin Newsom (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-dem-2028-jonste",
+    "kalshiTicker": "KXPRESNOMD-28-JSTE",
+    "note": "2028 Democratic Presidential Nominee :: Jon Stewart (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-dem-2028-jamtal",
+    "kalshiTicker": "KXPRESNOMD-28-JTAL",
+    "note": "2028 Democratic Presidential Nominee :: James Talarico (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "tac-oscars-nom-2027-01-31-bestpic-minota",
+    "kalshiTicker": "KXOSCARNOMPIC-27-MIN",
+    "note": "Oscar Nominees: Best Picture :: Minotaur (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aachc-cfb-undefeated-2026-11-28-ind",
+    "kalshiTicker": "KXNCAAFUNDEFEATED-26-IND",
+    "note": "College Football Undefeated Regular Season :: Indiana (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aachc-cfb-undefeated-2026-11-28-ga",
+    "kalshiTicker": "KXNCAAFUNDEFEATED-26-UGA",
+    "note": "College Football Undefeated Regular Season :: Georgia (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-dem-2028-aleocc",
+    "kalshiTicker": "KXPRESNOMD-28-AOC",
+    "note": "2028 Democratic Presidential Nominee :: Alexandria Ocasio-Cortez (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-rep-2028-marrub",
+    "kalshiTicker": "KXPRESNOMR-28-MR",
+    "note": "2028 Republican Presidential Nominee :: Marco Rubio (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-dem-2028-jbpri",
+    "kalshiTicker": "KXPRESNOMD-28-JBP",
+    "note": "2028 Democratic Presidential Nominee :: J.B. Pritzker (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aachc-cfb-undefeated-2026-11-28-txam",
+    "kalshiTicker": "KXNCAAFUNDEFEATED-26-TXAM",
+    "note": "College Football Undefeated Regular Season :: Texas A&M (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-rep-2028-ranpau",
+    "kalshiTicker": "KXPRESNOMR-28-RPAU",
+    "note": "2028 Republican Presidential Nominee :: Rand Paul (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-rep-2028-rondes",
+    "kalshiTicker": "KXPRESNOMR-28-RDS",
+    "note": "2028 Republican Presidential Nominee :: Ron DeSantis (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-dem-2028-wesmoo",
+    "kalshiTicker": "KXPRESNOMD-28-WM",
+    "note": "2028 Democratic Presidential Nominee :: Wes Moore (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aachc-cfb-undefeated-2026-11-28-txtech",
+    "kalshiTicker": "KXNCAAFUNDEFEATED-26-TTU",
+    "note": "College Football Undefeated Regular Season :: Texas Tech (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aqc-cfb-cfp-2026-12-06-playoffq-iowa",
+    "kalshiTicker": "KXNCAAFPLAYOFF-26-IOWA",
+    "note": "College Football Playoff Qualifiers :: Iowa (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aachc-cfb-undefeated-2026-11-28-ore",
+    "kalshiTicker": "KXNCAAFUNDEFEATED-26-ORE",
+    "note": "College Football Undefeated Regular Season :: Oregon (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "tac-oscars-03-14-2027-bestacto-ethhaw",
+    "kalshiTicker": "KXOSCARACTO-27-ETH",
+    "note": "Oscar Winner: Best Actor :: Ethan Hawke (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "tac-oscars-03-14-2027-bestacto-sacbar",
+    "kalshiTicker": "KXOSCARACTO-27-SAC",
+    "note": "Oscar Winner: Best Actor :: Sacha Baron Cohen (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-dem-2028-markel",
+    "kalshiTicker": "KXPRESNOMD-28-MK",
+    "note": "2028 Democratic Presidential Nominee :: Mark Kelly (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-rep-2028-vivram",
+    "kalshiTicker": "KXPRESNOMR-28-VR",
+    "note": "2028 Republican Presidential Nominee :: Vivek Ramaswamy (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aachc-nfl-bestrecord-2027-01-10-ne",
+    "kalshiTicker": "KXRECORDNFLBEST-27-NE",
+    "note": "Pro Football Best Regular Season Record :: New England (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-rep-2028-margre",
+    "kalshiTicker": "KXPRESNOMR-28-MTG",
+    "note": "2028 Republican Presidential Nominee :: Marjorie Taylor Greene (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "tec-nhl-hart-2027-06-09-w-conmcd",
+    "kalshiTicker": "KXNHLHART-27-CMCDAVID97",
+    "note": "NHL Hart Memorial Trophy Winner :: Connor McDavid (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aqc-cfb-cfp-2026-12-06-playoffq-pitt",
+    "kalshiTicker": "KXNCAAFPLAYOFF-26-PITT",
+    "note": "College Football Playoff Qualifiers :: Pittsburgh (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aqc-cfb-cfp-2026-12-06-playoffq-tcu",
+    "kalshiTicker": "KXNCAAFPLAYOFF-26-TCU",
+    "note": "College Football Playoff Qualifiers :: TCU (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "tec-f1-cc-2026-12-06-w-cadi",
+    "kalshiTicker": "KXF1CONSTRUCTORS-26-CAD",
+    "note": "F1 Constructors Champion :: Cadillac (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aqc-cfb-cfp-2026-12-06-playoffq-txtech",
+    "kalshiTicker": "KXNCAAFPLAYOFF-26-TTU",
+    "note": "College Football Playoff Qualifiers :: Texas Tech (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-rep-2028-tedcru",
+    "kalshiTicker": "KXPRESNOMR-28-TC",
+    "note": "2028 Republican Presidential Nominee :: Ted Cruz (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aqc-cfb-cfp-2026-12-06-playoffq-ga",
+    "kalshiTicker": "KXNCAAFPLAYOFF-26-UGA",
+    "note": "College Football Playoff Qualifiers :: Georgia (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "aachc-nfl-bestrecord-2027-01-10-det",
+    "kalshiTicker": "KXRECORDNFLBEST-27-DET",
+    "note": "Pro Football Best Regular Season Record :: Detroit (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "tec-nascar-oreillyseries-2026-11-07-w-sammay",
+    "kalshiTicker": "KXNASCARAUTOPARTSSERIES-NAPS26-SMAY",
+    "note": "NASCAR O'Reilly Auto Parts Series Champion :: Sam Mayer (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "tec-pga-ryder-2027-09-19-w-usa",
+    "kalshiTicker": "KXPGARYDER-RC27-USA",
+    "note": "2027 Ryder Cup Winner :: Team USA (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "tac-oscars-nom-2027-01-31-bestpic-194fat",
+    "kalshiTicker": "KXOSCARNOMPIC-27-FAT",
+    "note": "Oscar Nominees: Best Picture :: 1949 / Fatherland (auto conf=1.0, verified by title equality)"
+  },
+  {
+    "pmSlug": "enwc-uspres-nom-dem-2028-jossha",
+    "kalshiTicker": "KXPRESNOMD-28-JS",
+    "note": "2028 Democratic Presidential Nominee :: Josh Shapiro (auto conf=1.0, verified by title equality)"
+  }
+]

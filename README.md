@@ -1,68 +1,56 @@
-# Polyscope
+# Crossbook
 
-A market-intelligence terminal for the [Polymarket US](https://polymarket.us) API: full-universe consistency scanning, cross-venue divergence vs Kalshi, an orderbook explorer, and in-session movers — built in about a day as an API exploration project.
+A read-only terminal that matches identical prediction-market questions across [Polymarket US](https://polymarket.us) and Kalshi, computes fee-adjusted, order-book-verified cross-venue arbitrage edges, and tracks price divergence over time. Built in about a day against both venues' public APIs.
 
-![dashboard](docs/screenshots/dashboard.png)
+![crossbook](docs/screenshots/crossbook.png)
 
-The scanner, mid-scan on live data (book-verified rows re-priced from order-book tops):
+![detail](docs/screenshots/detail.png)
 
-![scanner](docs/screenshots/scanner.png)
+## The idea
 
-## What it does
+A binary prediction contract settles at $1 if the outcome happens and $0 if it doesn't. The same question — "Will the Fed cut in September?", "Will X win the 2028 nomination?" — often trades on both Polymarket US and Kalshi at different prices.
 
-**Partition consistency / arb scanner.** For every active event, the scanner groups markets into candidate outcome sets (using the event's own `marketGroups` when present, otherwise the event's full market list) and prices both directions of the round trip, net of taker fees:
+When it does, there's a mechanical trade: buy YES on the cheap venue and NO on the rich one, and the pair pays out exactly $1 at settlement no matter which way the outcome goes. That's a locked-in profit — **if** the two questions are truly identical, and **if** the price gap clears both venues' taker fees: Polymarket charges `0.06·p·(1−p)` per contract, Kalshi charges `0.07·p·(1−p)` rounded *up* to the next cent, which makes small Kalshi fills relatively more expensive.
 
-```
-long edge  = 1 − Σask − Σ θ·p·(1−p)     (buy every outcome, collect $1 at settlement)
-short edge = Σbid − 1 − Σ θ·p·(1−p)     (sell every outcome, owe $1 at settlement)
-```
+The arithmetic is trivial. The hard problem is **matching**. Title similarity cannot see that "CPI YoY" is not "CPI MoM", or that two venues resolve "by end of year" against different deadlines or settlement sources. A naive matcher will happily report a 20¢ "riskless" edge that is actually two different questions.
 
-where θ is each market's `feeCoefficient` (0.06 taker). The two directions need different structure, so the flagging gates are asymmetric: a **long** flag requires the set to look *exhaustive* (Σmid ≥ 0.95 — a Dem/Rep pair summing to 0.90 isn't mispriced, a third party can win), while a **short** flag only requires *mutual exclusivity* (Σmid ≤ 1.05 — an unlisted outcome occurring makes every sold leg expire worthless, which only helps, but nested ladders like "over 3.5"/"over 9.5" can pay twice and price well above 1). Because the embedded quotes lag the matching engine, top candidates are then **re-priced from live order-book tops** before being flagged, along with the number of complete sets executable at best level.
+## How it deals with that
 
-**Cross-venue matcher (Polymarket US vs Kalshi).** Titles are tokenized (stopwords stripped, venue vocabulary normalized — hike/raise→increase, GOP→republican, bps→bp) and matched by Jaccard similarity, first event-to-event, then outcome-to-outcome within the best event match. Each pair carries `confidence = eventScore × outcomeScore` and a signed mid-price divergence; it's deliberately conservative and meant as a review queue, since "the same" market often differs in settlement source or deadline across venues.
+Every pair carries a trust level, and the math it's allowed to show depends on it:
 
-**In-session movers.** The retail REST API has no historical prices, candles, or price-change fields, so Polyscope samples every market's mid price once a minute into an in-memory ring buffer (240 samples per market) and computes biggest movers over a selectable window. History starts accumulating the moment the server starts.
+- **Curated** — hand-verified slug↔ticker mappings in [`curated-pairs.json`](curated-pairs.json) (~50 pairs, including the September 2026 Fed decision legs). Full arb math, ranked first.
+- **High** — automatic matches where both the event titles and the outcome titles are near-exact. Full arb math, but watched skeptically (below).
+- **Low** — loose fuzzy matches. Shown as a review queue with the raw price gap only — **no arb math at all**, because at this trust level a big gap is evidence of a mismatch, not of money.
 
-**Market explorer with live books.** Browse the ~2,700 active events by category, sampled open interest, end date, or the site's featured order; drill into any market for its full order book, BBO snapshot (last trade, open interest, depth counts), and per-event partition scan.
+On top of the ladder, a set of suspect heuristics demote anything that looks too good:
 
-**Open-interest sampling.** The list endpoints define `volume`/`liquidity`/`openInterest` fields but never populate them (verified live), while per-market BBO responses carry real open interest. Polyscope closes the gap with a rotating sampler: every refresh cycle it BBO-polls a window of markets (live events first, then soonest-ending), accumulating an open-interest map that rankings degrade gracefully onto as coverage builds.
+- Any **non-curated** pair showing more than an 8¢ "riskless" edge is presumed mismatched. Between two regulated venues, genuine cross-venue edges are a few cents; a 20¢ edge is almost always a unit or deadline difference the title comparison can't see.
+- Absolute mid-price gaps above thresholds (15¢ for auto matches, 25¢ even for high-trust ones) flag the pair as suspect and rank it last.
+- **In-play** events (live sports on the Polymarket side) are demoted: quotes move second to second, so an apparent cross-venue edge is usually staleness, not opportunity.
+- **Phantom edges** are demoted: if a book check finds zero executable sets at top-of-book, a positive edge on an empty book ranks as noise.
 
-## Why these features
+Finally, nothing is presented as an actionable edge from cached quotes alone. The event-feed quotes on both venues lag their matching engines, so every headline edge is **re-priced from live order books** and annotated with the number of complete sets executable at the best level before it's displayed.
 
-They fell out of the API investigation rather than the other way around:
+## What it found on day one
 
-- `GET /v1/events` embeds best bid/ask quotes on every nested market and allows `limit=500`, so scanning the entire universe (~2,700 events, ~20,000 markets) costs about **6 HTTP requests**. That makes a full-universe consistency scan cheap enough to run on demand.
-- The list endpoints never populate their volume/OI fields, but per-market BBO does — which is what motivated the rotating open-interest sampler.
-- Events expose `marketGroups` for multi-outcome partitions (e.g. `usfed-fomc-2026-09-16` splitting into hike/cut/hold outcome markets), and mutually-exclusive pricing is first-class in the product — so partition arithmetic is the natural analysis primitive.
-- Kalshi's public API covers heavily overlapping topics (Fed, CPI, elections, sports) with no auth required, making cross-venue comparison a free extra dimension.
-- The absence of any history endpoint in the retail API is what forced (and motivated) the self-sampling movers design.
+Running against live data on 2026-08-17, the clearest pattern: **Polymarket US systematically prices 2028 presidential-nominee longshots about 8–15¢ richer than Kalshi** on identical, hand-verified questions. These edges survive the fee math and the order-book check with real — but small — executable size: on one candidate, roughly 140 complete sets at about 11¢ of edge per set.
+
+To be clear about magnitude: that's tens of dollars, not thousands. The interesting part isn't the money — it's what it says about the two venues. This looks like retail flow paying up for lottery-ticket names on one venue while thin books on the other don't arbitrage it away. It is an observation about market microstructure, not a money machine.
 
 ## Quickstart
 
 ```bash
-git clone <this-repo> && cd polyscope
 npm install
-cp .env.example .env   # API keys are OPTIONAL — leave blank for public-data mode
+cp .env.example .env   # optional — the entire product runs on public data
 
-npm run dev            # dev: dashboard on http://localhost:5173, API proxied to :8787
+npm run dev            # dev: UI on http://localhost:5173, API proxied to :8787
 # or
 npm run build && npm start   # prod: everything served from http://localhost:8787
 ```
 
-Without credentials, everything except the Account tab works — all market data comes from the public gateway. With credentials, the Account tab additionally shows balances, positions, and open orders (read-only).
+API keys are optional and change almost nothing: all market data — events, quotes, order books — comes from both venues' public endpoints. Credentials only light up a small authenticated-status chip (with account balance) in the header.
 
-The dashboard has six tabs:
-
-| Tab | Backed by | Shows |
-| --- | --- | --- |
-| **Overview** | `/api/overview` | Universe totals, open interest by category (sampled), top events |
-| **Explorer** | `/api/events`, `/api/markets/:slug/book` | Filterable event list, per-market order book + BBO |
-| **Scanner** | `/api/scan` | Partition groups ranked by net edge, with executable-set depth |
-| **Cross-Venue** | `/api/compare` | Polymarket↔Kalshi matches ranked by divergence, with confidence |
-| **Movers** | `/api/movers` | Biggest mid-price moves since the server started sampling |
-| **Account** | `/api/account` | Balances, positions, open orders (requires keys) |
-
-## Configuration
+### Configuration
 
 | Variable | Required | Description |
 | --- | --- | --- |
@@ -72,36 +60,44 @@ The dashboard has six tabs:
 
 Never commit a real `.env`; `.env.example` documents the shape.
 
+## Gap history
+
+Neither venue's public API serves historical prices, so crossbook records its own: once a minute it samples the mid prices of every curated and high-trust pair and appends them to `data/gaps.jsonl`. The file keeps a rolling 48-hour window and is compacted on boot so it can't grow without bound. Divergence charts are empty when the server first starts and fill in as it runs — history survives restarts.
+
 ## Architecture
 
 ```
 server/src/
-  index.ts           Express app, serves web/dist in prod, 60s mover-sampling loop
+  index.ts           Express app, serves web/dist in prod, 60s gap-sampling loop
   config.ts          dependency-free .env loader
   pmus/
-    client.ts        typed PMUS client (public gateway + retail API), TTL caches
-    sign.ts          Ed25519 request signing (libsodium secret → PKCS#8 seed)
-    types.ts         Event / Market / BBO / Book / Balance types
-  kalshi/client.ts   minimal Kalshi public client (open events, nested markets)
+    client.ts        Polymarket US client (public gateway + optional authed status),
+                     TTL caches, token-bucket throttle
+    sign.ts          Ed25519 request signing; the signed message contains the path
+                     WITHOUT the query string (signing "/v1/x?limit=5" → 401,
+                     signing "/v1/x" while requesting "?limit=5" → 200, verified live)
+    types.ts         Event / Market / Book / Balance types
+  kalshi/client.ts   Kalshi public client; the order book lists resting BIDS per
+                     side, so the YES ask is implied by the best NO bid
+                     (yesAsk = 1 − noBid) and buying YES fills against NO levels
   analysis/
-    fees.ts          fee = θ·p·(1−p); taker θ=0.06, maker rebate θ=0.0125
-    scanner.ts       partition grouping, asymmetric Σmid gates, long/short net edges
-    matcher.ts       tokenizer + synonyms + numeric guard + Jaccard matching
-    tracker.ts       in-memory mid-price ring buffer → movers
-    sampler.ts       rotating BBO polls → open-interest map (list APIs omit OI)
-  routes/api.ts      the REST surface the dashboard consumes
-web/src/             Vite + React dashboard (the six tabs above)
+    fees.ts          taker fee curves — PM 0.06·p·(1−p); Kalshi 0.07·p·(1−p)
+                     rounded UP to the next cent
+    matcher.ts       tokenizer + venue synonyms + numeric-agreement guard +
+                     Jaccard scoring over an inverted token index (so full-universe
+                     matching doesn't block the event loop)
+    pairs.ts         trust ladder, both arb directions, suspect heuristics,
+                     live-order-book re-pricing with executable-set counts
+    history.ts       gap samples → JSONL, 48h window, compaction on boot
+  routes/api.ts      /api/pairs, /api/pairs/:id/history, /api/status
+web/src/             Vite + React terminal UI
 ```
 
-Design choices: **no database** — everything is in-memory (TTL caches for the event universe, books, and account data; a ring buffer for price history). The client self-throttles to **10 req/s** via a token bucket, half of the API's documented 20 req/s limit, and the 45s event-universe cache means repeated scans mostly don't hit the network at all.
-
-## API surface investigation
-
-The most interesting output of this project may be the writeup: [docs/API_SURFACE.md](docs/API_SURFACE.md) maps all three Polymarket US hosts (public gateway, retail authenticated API, institutional exchange API) from live probing plus the official OpenAPI schemas. Highlights include the signing quirk that the Ed25519 message must contain the request path **without the query string** (signing `/v1/portfolio/positions?limit=5` → 401, signing `/v1/portfolio/positions` while requesting `?limit=5` → 200), and the verified wall between tiers — retail API keys get a hard 401 on `api.prod.polymarketexchange.com`, which requires separate institutional onboarding.
+No database — pair state is in-memory with TTL caches; the only persistence is the gap-history JSONL. Both clients self-throttle well under the venues' documented rate limits.
 
 ## Read-only by design
 
-The client implements market-data and portfolio **reads only**. There is deliberately no code path for placing, modifying, or cancelling orders, and no RFQ or combo support — flagged "edges" are a consistency lens on public quotes, ignoring queue position, fill risk, and settlement timing. Nothing here is investment advice.
+The clients implement market-data reads (and, with keys, a balance read) only. There is deliberately no code path for placing, modifying, or cancelling orders on either venue. Flagged edges are a lens on public quotes — they ignore queue position, fill risk, and settlement timing. Nothing here is investment advice.
 
 ## Testing
 
@@ -109,15 +105,18 @@ The client implements market-data and portfolio **reads only**. There is deliber
 npm test
 ```
 
-Runs the server's Vitest suite, which covers the pure logic: signature message construction and secret-key decoding, the fee curve, partition grouping and edge math in the scanner, and the matcher's tokenizer/similarity scoring. Tests run offline — no live API calls.
+Runs the server's Vitest suite over the pure logic: Ed25519 signing (message construction, secret-key decoding), both fee curves including Kalshi's round-up-to-the-cent behavior, pair construction and arb-edge math, gap-history persistence and windowing, and the matcher's tokenizer/similarity scoring. Tests run offline — no live API calls.
 
 ## Limitations & next steps
 
-- **Matcher precision.** Jaccard-on-titles is a heuristic; the synonym table is tiny and hand-built. A curated mapping file (or embedding similarity) would raise recall without sacrificing the review-queue framing.
-- **Movers are ephemeral.** History lives in memory and resets on restart. Persisting samples (even to SQLite) would make windows meaningful across restarts.
-- **Polling → streaming.** The API offers WebSocket market channels (same Ed25519 auth) and gRPC for institutional; subscribing would replace the 60s sampling loop with real-time ticks.
-- **Fee model is the base schedule.** It uses per-market `feeCoefficient` and ignores volume-based taker rebates ($250k+/mo tiers), so net edges are conservative for high-volume accounts.
-- **Partition detection is inferential.** Few events carry explicit `marketGroups`; everything else relies on the Σmid gates. The short-side gate (Σmid ≤ 1.05) excludes typical nested ladders but is a heuristic — adjacent nested lines can in principle price inside it, so flagged rows show their legs for human review before anyone acts.
+- **Matching is the eternal hard part.** Curation is the only trust level that's actually trustworthy, and it scales linearly with human effort. Embedding similarity over full question text (including settlement rules) could raise auto-match precision without giving up the review-queue framing.
+- **Fees are base schedules.** No volume-based taker rebates on Polymarket, no Kalshi maker/member fee variations — displayed edges are conservative for high-volume accounts and optimistic for fee tiers that differ.
+- **Execution risk is ignored.** Queue position, partial fills, the capital split across two venues, and settlement-timing basis (the venues may pay out days apart) are all outside the model.
+- **Polling → streaming.** Both venues offer WebSocket market data; subscribing would replace the polling loops with real-time ticks and tighter book verification.
+
+## API investigation
+
+The Polymarket US API research that seeded this project is written up in [docs/API_SURFACE.md](docs/API_SURFACE.md) — endpoint catalog across all three hosts, the signing quirk above, fee schedule details, and the gaps (like the missing history endpoints) that shaped crossbook's design.
 
 ## License
 
